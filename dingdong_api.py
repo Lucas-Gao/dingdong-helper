@@ -26,8 +26,8 @@ class DingDongApi(object):
         "applet_source": "",
         "city_number": "0101",
         "sharer_uid": "",
-        "device_token": "WHJMrwNw1k/FKPjcOOgRd+BL63ErIKsK/eLG0mUpGJZ16P9zFvfu/F1156njLyfZ/niKqWLb3XJOvdNnwNvkiTw2b6U7pE/0ddCW1tldyDzmauSxIJm5Txg==1487582755342",
-        "longitude": "121.489999",
+        "device_token": "WHJMrwNw1k/FKPjcOOgRd+BL63ErIKsK/eLG0mUpGJZ16P9zFvfu/F1156njLyfZ/niKqWLb3XJOvdNnwNvkiTw2b6U7pE"
+                        "/0ddCW1tldyDzmauSxIJm5Txg==1487582755342",
         "app_client_id": "4"
     }
 
@@ -90,7 +90,8 @@ class DingDongApi(object):
         product_list = resp['data']['product_list']
         for product in product_list:
             result.append({'id': product['id'], 'name': product['name'], 'price': product['price'],
-                           'stock': product['stock_number'], 'unit': product['sale_unit']})
+                           'stock': product['stock_number'], 'unit': product['sale_unit'],
+                           'buy_limit': product['buy_limit']})
 
         return result
 
@@ -108,8 +109,7 @@ class DingDongApi(object):
 
         resp = requests.post('https://maicai.api.ddxq.mobi/cart/add', params=param, headers=headers).json()
 
-        if not self.is_success(resp):
-            return None
+        return self.is_success(resp)
 
     def get_cart(self, config):
         param = self.DATA
@@ -126,7 +126,7 @@ class DingDongApi(object):
 
         if len(resp['data']['new_order_product_list']) == 0:
             log().info("购物车可选商品为空")
-            return None
+            return {}
         new_order_product = resp['data']['new_order_product_list'][0]
         products = new_order_product['products']
 

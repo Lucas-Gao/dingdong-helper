@@ -5,19 +5,28 @@ from logger import log
 
 
 class ClearCountThread(threading.Thread):
+    cache = None
+    sleep_time = 30 * 60
+
+    def __init__(self, cache, sleep_time):
+        super().__init__()
+        self.cache = cache
+        if sleep_time:
+            self.sleep_time = sleep_time
+
     def run(self):
         while True:
-            time.sleep(30 * 60)
-            log().info("正在清理缓存..")
-            Cache.instance().clear()
+            time.sleep(self.sleep_time)
+            log().info("正在清理缓存..当前缓存中的对象: %s" % (self.cache.get_all_key()))
+            self.cache.clear()
 
 
 class Cache(object):
     __in_stock_product_dist = {}
 
-    def __init__(self):
-        log().info("缓存清理已启动")
-        ClearCountThread().start()
+    def __init__(self, sleep_time=30*60):
+        log().info("缓存清理线程已启动..")
+        ClearCountThread(self, sleep_time=sleep_time).start()
 
     def merge(self, product_id):
         count = 1
@@ -36,10 +45,3 @@ class Cache(object):
 
     def clear(self):
         self.__in_stock_product_dist.clear()
-
-    @classmethod
-    def instance(cls):
-        if not hasattr(cls, 'ins'):
-            instance_obj = cls()
-            setattr(cls, 'ins', instance_obj)
-        return getattr(cls, 'ins')
